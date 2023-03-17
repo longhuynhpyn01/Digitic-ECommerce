@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
         // minLength: [8, "Password should be greater than 8 characters"],
         // select: false, // sẽ loại trừ trường này khi truy vấn find(), findOne()
     },
+    role: {
+        type: String,
+        default: "user"
+    }
     // avatar: {
     //     public_id: {
     //         type: String,
