@@ -37,7 +37,30 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "user"
-    }
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
+    cart: {
+        type: Array,
+        default: [],
+    },
+    address: [
+        {
+            // type: mongoose.Schema.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Address"
+        }
+    ],
+    wishlist: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product"
+        }
+    ],
+
+
     // avatar: {
     //     public_id: {
     //         type: String,
@@ -59,6 +82,8 @@ const userSchema = new mongoose.Schema({
 
     // resetPasswordToken: String,
     // resetPasswordExpire: Date,
+}, {
+    timestamps: true,
 });
 
 
