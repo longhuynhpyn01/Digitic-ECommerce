@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const { genSalt } = require("bcrypt");
 const { generateToken } = require("../config/jwtToken");
 
+// Register a user
 exports.createUser = asyncHandler(async (req, res) => {
     console.log("req.body:", req.body)
     const email = req.body.email;
@@ -19,6 +20,7 @@ exports.createUser = asyncHandler(async (req, res) => {
     }
 });
 
+// Login a user
 exports.loginUser = asyncHandler(async (req, res) => {
     console.log("req.body:", req.body)
     const { email, password } = req.body;
@@ -40,5 +42,69 @@ exports.loginUser = asyncHandler(async (req, res) => {
     } else {
         throw new Error("Invalid Credentials");
     }
+});
 
+// Get all users
+exports.getAllUser = asyncHandler(async (req, res) => {
+    try {
+        const users = await User.find();
+
+        res.json(users);
+
+        // res.status(200).json({
+        //     success: true,
+        //     users,
+        // });
+    } catch (error) {
+        throw new Error(error);
+    };
+});
+
+// Get a single user
+exports.getUser = asyncHandler(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+
+        res.json({
+            user,
+        });
+    } catch (error) {
+        throw new Error(error);
+    };
+});
+
+// Delete a user
+exports.deleteUser = asyncHandler(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleteUser = await User.findByIdAndDelete(id);
+
+        res.json({
+            deleteUser
+        });
+    } catch (error) {
+        throw new Error(error);
+    };
+});
+
+// Update a user
+exports.updateUser = asyncHandler(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateUser = await User.findByIdAndUpdate(id, {
+            firstName: req?.body?.firstName,
+            lastName: req?.body?.lastName,
+            email: req?.body?.email,
+            mobile: req?.body?.mobile,
+        }, {
+            new: true
+        });
+
+        res.json(
+            updateUser
+        );
+    } catch (error) {
+        throw new Error(error);
+    };
 });
