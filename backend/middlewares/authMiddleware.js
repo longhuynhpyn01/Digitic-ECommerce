@@ -7,11 +7,11 @@ exports.authMiddleware = asyncHandler(async (req, res, next) => {
 
     if (req?.headers?.authorization?.startsWith("Bearer")) {
         token = req.headers.authorization.split(" ")[1];
-        console.log("token:", token);
+        // console.log("token:", token);
         try {
             if (token) {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                console.log("decoded:", decoded);
+                // console.log("decoded:", decoded);
                 const user = await User.findById(decoded?.id);
                 req.user = user;
                 next();
@@ -33,5 +33,4 @@ exports.isAdmin = asyncHandler(async (req, res, next) => {
     } else {
         next();
     }
-
 });
