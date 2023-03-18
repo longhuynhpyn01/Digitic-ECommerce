@@ -8,3 +8,6 @@
 -   npm i cookie-parser => để nhằm tạo cookie
 -   npm i morgan => để giúp trả về được những request mà ta tạo những truy vấn ở ngay bên terminal bao gồm thời gian, method, URL và thời gian response
 -   npm i slugify => để tạo ra slug cho sản phẩm
+-   npm i crypto => để hash token khi generator token để reset lại password
+-   npm i nodemailer => để gửi mail
+    => search sign in with app password => Bảo mật => Xác minh 2 lớp => Mật khẩu ứng dụng => Tạo
