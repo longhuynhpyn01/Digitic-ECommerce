@@ -63,7 +63,6 @@ exports.loginUser = asyncHandler(async (req, res) => {
 // Handle refresh token
 exports.handleRefreshToken = asyncHandler(async (req, res) => {
     const cookie = req.cookies;
-    console.log("cookie:", cookie);
 
     if (!cookie?.refreshToken) {
         throw new Error("No Refresh Token in Cookies");
@@ -77,7 +76,6 @@ exports.handleRefreshToken = asyncHandler(async (req, res) => {
     }
 
     jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decoded) => {
-        console.log("decoded:", decoded);
         if (err || user.id !== decoded.id) {
             throw new Error("There is something wrong with refresh token");
         }
@@ -92,7 +90,6 @@ exports.handleRefreshToken = asyncHandler(async (req, res) => {
 // Logout user
 exports.logoutUser = asyncHandler(async (req, res) => {
     const cookie = req.cookies;
-    console.log("cookie:", cookie);
 
     if (!cookie?.refreshToken) {
         throw new Error("No Refresh Token in Cookies");
@@ -100,7 +97,6 @@ exports.logoutUser = asyncHandler(async (req, res) => {
 
     const refreshToken = cookie.refreshToken;
     const user = await User.findOne({ refreshToken });
-    console.log("user:", user);
 
     if (!user) {
         res.clearCookie("refreshToken", {
@@ -110,20 +106,18 @@ exports.logoutUser = asyncHandler(async (req, res) => {
         return res.sendStatus(204); // forbidden
     }
 
-    const newUser = await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
         { refreshToken },
         {
             refreshToken: ""
         }
     );
 
-    console.log("newUser:", newUser);
-
     res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: true
     });
-    return res.sendStatus(204); // forbidden
+    res.sendStatus(204); // forbidden
 });
 
 // Update a user
