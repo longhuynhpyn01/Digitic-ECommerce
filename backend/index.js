@@ -12,6 +12,7 @@ const productRouter = require("./routes/productRoute");
 const blogRouter = require("./routes/blogRoute");
 const categoryRouter = require("./routes/productCategoryRoute");
 const blogCategoryRouter = require("./routes/blogCategoryRoute");
+const brandRouter = require("./routes/brandRoute");
 
 dbConnect();
 
@@ -25,6 +26,7 @@ app.use("/api/product", productRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/blogcategory", blogCategoryRouter);
+app.use("/api/brand", brandRouter);
 
 // phải đặt bên dưới route
 app.use(notFound);
