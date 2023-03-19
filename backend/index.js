@@ -10,7 +10,8 @@ const PORT = process.env.PORT || 4000;
 const authRouter = require("./routes/authRoute");
 const productRouter = require("./routes/productRoute");
 const blogRouter = require("./routes/blogRoute");
-const categoryRouter = require("./routes/categoryRoute");
+const categoryRouter = require("./routes/productCategoryRoute");
+const blogCategoryRouter = require("./routes/blogCategoryRoute");
 
 dbConnect();
 
@@ -23,6 +24,7 @@ app.use("/api/user", authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/blogcategory", blogCategoryRouter);
 
 // phải đặt bên dưới route
 app.use(notFound);
