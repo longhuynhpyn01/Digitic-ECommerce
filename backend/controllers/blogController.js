@@ -5,8 +5,6 @@ const validateMongoDbId = require("../utils/validateMongodbId");
 
 // Create blog
 exports.createBlog = asyncHandler(async (req, res) => {
-    console.log("req.body:", req.body);
-
     try {
         const newBlog = await Blog.create(req.body);
         res.json(newBlog);
@@ -18,6 +16,7 @@ exports.createBlog = asyncHandler(async (req, res) => {
 // Update blog
 exports.updateBlog = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    validateMongoDbId(id);
 
     try {
         const updateBlog = await Blog.findByIdAndUpdate(id, req.body, {
@@ -32,6 +31,7 @@ exports.updateBlog = asyncHandler(async (req, res) => {
 // Get a blog
 exports.getBlog = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    validateMongoDbId(id);
 
     try {
         const blog = await Blog.findById(id)
@@ -64,6 +64,7 @@ exports.getAllBlogs = asyncHandler(async (req, res) => {
 // Delete a blog
 exports.deleteBlog = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    validateMongoDbId(id);
 
     try {
         const deleteBlog = await Blog.findByIdAndDelete(id);

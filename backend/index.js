@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 4000;
 const authRouter = require("./routes/authRoute");
 const productRouter = require("./routes/productRoute");
 const blogRouter = require("./routes/blogRoute");
+const categoryRouter = require("./routes/categoryRoute");
 
 dbConnect();
 
@@ -21,6 +22,7 @@ app.use(cookieParser()); // để sử dụng res.cookie
 app.use("/api/user", authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/blog", blogRouter);
+app.use("/api/category", categoryRouter);
 
 // phải đặt bên dưới route
 app.use(notFound);
