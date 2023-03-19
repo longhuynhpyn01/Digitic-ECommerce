@@ -2,11 +2,10 @@ const Product = require("../models/productModel");
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
+const validateMongoDbId = require("../utils/validateMongodbId");
 
 // Create a product
 exports.createProduct = asyncHandler(async (req, res) => {
-    console.log("req.body:", req.body);
-
     if (req.body.title) {
         req.body.slug = slugify(req.body.title);
     }
@@ -22,6 +21,7 @@ exports.createProduct = asyncHandler(async (req, res) => {
 // Get a product
 exports.getProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    validateMongoDbId(id);
 
     try {
         const findProduct = await Product.findById(id);
@@ -102,8 +102,7 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
 // Update a product
 exports.updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    console.log("params:", req.params);
-    console.log("id:", id);
+    validateMongoDbId(id);
 
     try {
         if (req.body.title) {
@@ -126,6 +125,7 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 // Delete a product
 exports.deleteProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    validateMongoDbId(id);
 
     try {
         if (req.body.title) {
@@ -150,8 +150,6 @@ exports.addToWishList = asyncHandler(async (req, res) => {
         const alreadyAdded = user?.wishlist?.find(
             (id) => id.toString() === productId
         );
-
-        console.log("alreadyAdded:", alreadyAdded);
 
         if (alreadyAdded) {
             let user = await User.findByIdAndUpdate(
@@ -191,8 +189,6 @@ exports.rating = asyncHandler(async (req, res) => {
         const alreadyRated = product?.ratings?.find(
             (userId) => userId.postedBy.toString() === _id.toString()
         );
-
-        console.log("alreadyRated:", alreadyRated);
 
         if (alreadyRated) {
             const updateRating = await Product.updateOne(
