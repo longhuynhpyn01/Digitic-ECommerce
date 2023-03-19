@@ -11,3 +11,8 @@
 -   npm i crypto => để hash token khi generator token để reset lại password
 -   npm i nodemailer => để gửi mail
     => search sign in with app password => Bảo mật => Xác minh 2 lớp => Mật khẩu ứng dụng => Tạo
+
+2. Thông tin hướng dẫn
+
+-   Nodemailer tại 03:56:00
+-   Cloudinary tại 06:37:00
