@@ -3,9 +3,8 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
-const { validateMongoDbId } = require("../utils/validateMongodbId");
+const validateMongoDbId = require("../utils/validateMongodbId");
 const { generateRefreshToken } = require("../config/refreshToken");
-// const sendEmail = require("../utils/sendEmail");
 const { sendEmail } = require("./emailController");
 
 // Register a user
@@ -147,7 +146,7 @@ exports.updateUser = asyncHandler(async (req, res) => {
 });
 
 // Get all users
-exports.getAllUser = asyncHandler(async (req, res) => {
+exports.getAllUsers = asyncHandler(async (req, res) => {
     try {
         const users = await User.find();
 

@@ -32,7 +32,7 @@ exports.getProduct = asyncHandler(async (req, res) => {
 });
 
 // Get all product
-exports.getAllProduct = asyncHandler(async (req, res) => {
+exports.getAllProducts = asyncHandler(async (req, res) => {
     try {
         // Filtering
         // /api/product?price[gte]=6000&price[lte]=10000

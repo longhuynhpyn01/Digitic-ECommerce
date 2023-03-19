@@ -2,7 +2,7 @@ const express = require("express");
 const {
     createUser,
     loginUser,
-    getAllUser,
+    getAllUsers,
     getUser,
     deleteUser,
     updateUser,
@@ -24,12 +24,12 @@ router.get("/logout", logoutUser);
 router.post("/forgot-password-token", forgotPasswordToken);
 router.put("/reset-password/:token", resetPassword);
 router.put("/password", authMiddleware, updatePassword);
-router.get("/all-users", getAllUser);
+router.get("/all-users", getAllUsers);
 router.get("/refresh", handleRefreshToken);
-router.get("/:id", authMiddleware, isAdmin, getUser);
-router.delete("/:id", deleteUser);
 router.put("/edit-user", authMiddleware, updateUser);
 router.put("/block-user/:id", authMiddleware, isAdmin, blockUser);
 router.put("/unblock-user/:id", authMiddleware, isAdmin, unblockUser);
+router.get("/:id", authMiddleware, isAdmin, getUser);
+router.delete("/:id", deleteUser);
 
 module.exports = router;
