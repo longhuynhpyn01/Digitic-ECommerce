@@ -2,7 +2,9 @@ const Product = require("../models/productModel");
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
+const fs = require("fs");
 const validateMongoDbId = require("../utils/validateMongodbId");
+const cloudinaryUploadImg = require("../utils/cloudinary");
 
 // Create a product
 exports.createProduct = asyncHandler(async (req, res) => {
@@ -239,6 +241,36 @@ exports.rating = asyncHandler(async (req, res) => {
             { new: true }
         );
         res.json(finalProduct);
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+// Upload Images
+exports.uploadImages = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    validateMongoDbId(id);
+    try {
+        const uploader = (path) => cloudinaryUploadImg(path, "images");
+        const urls = [];
+        const files = req.files;
+        for (const file of files) {
+            const { path } = file;
+            const newPath = await uploader(path); // get được url image đã upload lên cloudinary
+            urls.push(newPath);
+            fs.unlinkSync(path);
+        }
+
+        const findProduct = await Product.findByIdAndUpdate(
+            id,
+            {
+                images: urls.map((file) => file)
+            },
+            {
+                new: true
+            }
+        );
+        res.json(findProduct);
     } catch (error) {
         throw new Error(error);
     }

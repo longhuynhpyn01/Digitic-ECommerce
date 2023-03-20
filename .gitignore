@@ -19,6 +19,14 @@
 /frontend/.history
 /.history
 
+# .env
+/backend/.env
+/frontend/.env
+.env
+
+# .prettierrc
+.prettierrc
+
 # misc
 .DS_Store
 .env.local
