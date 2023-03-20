@@ -26,8 +26,3 @@ SMPT_PASSWORD
 CLOUDINARY_NAME
 CLOUDINARY_API_KEY
 CLOUDINARY_API_SECRET
-
-## Author
-
-**Facebook** Click [Here](https://www.facebook.com/someone.worshipalove) **Long Huynh**
-**Github** Click [Here](https://github.com/longhuynhpyn01/) **Long Huynh**
