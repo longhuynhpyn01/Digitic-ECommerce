@@ -60,6 +60,47 @@ exports.loginUser = asyncHandler(async (req, res) => {
     }
 });
 
+// Login a admin
+exports.loginAdmin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    // check if user exists or not
+    const findAdmin = await User.findOne({ email });
+
+    if (findAdmin.role !== "admin") {
+        throw new Error("Not Authorised");
+    }
+
+    if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
+        const refreshToken = await generateRefreshToken(findAdmin?._id);
+        const updateUser = await User.findByIdAndUpdate(
+            findAdmin?._id,
+            {
+                refreshToken: refreshToken
+            },
+            {
+                new: true
+            }
+        );
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            maxAge: process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+        });
+
+        res.json({
+            _id: findAdmin?._id,
+            firstName: findAdmin?.firstName,
+            lastName: findAdmin?.lastName,
+            email: findAdmin?.email,
+            mobile: findAdmin?.mobile,
+            token: generateToken(findAdmin?._id)
+        });
+    } else {
+        throw new Error("Invalid Credentials");
+    }
+});
+
 // Handle refresh token
 exports.handleRefreshToken = asyncHandler(async (req, res) => {
     const cookie = req.cookies;
@@ -133,6 +174,28 @@ exports.updateUser = asyncHandler(async (req, res) => {
                 lastName: req?.body?.lastName,
                 email: req?.body?.email,
                 mobile: req?.body?.mobile
+            },
+            {
+                new: true
+            }
+        );
+
+        res.json(updateUser);
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+// Save user address
+exports.saveAddress = asyncHandler(async (req, res) => {
+    try {
+        const { _id } = req.user;
+        validateMongoDbId(_id);
+
+        const updateUser = await User.findByIdAndUpdate(
+            _id,
+            {
+                address: req?.body?.address
             },
             {
                 new: true
@@ -304,4 +367,16 @@ exports.resetPassword = asyncHandler(async (req, res) => {
 
     await user.save();
     res.json(user);
+});
+
+// Get Wishlist: danh sách với nhiều vật dụng mà chúng ta muốn
+exports.getWishlist = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+
+    try {
+        const findUser = await User.findById(_id).populate("wishlist");
+        res.json(findUser);
+    } catch (error) {
+        throw new Error(error);
+    }
 });

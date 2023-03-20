@@ -2,14 +2,16 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
+const validateEmail = function (email) {
+    const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    return regex.test(email);
+};
+
 const userSchema = new mongoose.Schema(
     {
         firstName: {
             type: String,
             required: true
-            // required: [true, "Please Enter Your Name"],
-            // maxLength: [30, "Name cannot exceed 30 characters"],
-            // minLength: [4, "Name should have more than 4 characters"],
         },
         lastName: {
             type: String,
@@ -17,19 +19,18 @@ const userSchema = new mongoose.Schema(
         },
         email: {
             type: String,
-            required: [true, "Please Enter Your Email"],
+            required: [true, "Please enter your email"],
+            validate: [validateEmail, "Please enter a valid email"],
             unique: true
-            // validate: [validator.isEmail, "Please Enter a valid Email"],
         },
         mobile: {
             type: String,
-            required: [true, "Please Enter Your Mobile"],
+            required: [true, "Please enter your mobile"],
             unique: true
         },
         password: {
             type: String,
-            required: [true, "Please Enter Your Password"]
-            // minLength: [8, "Password should be greater than 8 characters"],
+            required: [true, "Please enter your password"]
             // select: false, // sẽ loại trừ trường này khi truy vấn find(), findOne()
         },
         role: {
@@ -44,13 +45,9 @@ const userSchema = new mongoose.Schema(
             type: Array,
             default: []
         },
-        address: [
-            {
-                // type: mongoose.Schema.ObjectId,
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Address"
-            }
-        ],
+        address: {
+            type: String
+        },
         wishlist: [
             {
                 type: mongoose.Schema.Types.ObjectId,
