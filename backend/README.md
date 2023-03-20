@@ -12,6 +12,7 @@
 -   npm i nodemailer => để gửi mail
     => search sign in with app password => Bảo mật => Xác minh 2 lớp => Mật khẩu ứng dụng => Tạo
 -   npm i multer sharp cloudinary => để giúp upload ảnh
+-   npm i uniqid => để sinh ra id phân biệt
 
 2. Thông tin hướng dẫn
 

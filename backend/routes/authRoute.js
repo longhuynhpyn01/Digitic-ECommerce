@@ -15,7 +15,14 @@ const {
     resetPassword,
     loginAdmin,
     getWishlist,
-    saveAddress
+    saveAddress,
+    userCart,
+    getUserCart,
+    emptyCart,
+    applyCoupon,
+    createOrder,
+    getOrders,
+    updateOrderStatus
 } = require("../controllers/userController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
@@ -35,6 +42,18 @@ router.put("/save-address", authMiddleware, saveAddress);
 router.put("/block-user/:id", authMiddleware, isAdmin, blockUser);
 router.put("/unblock-user/:id", authMiddleware, isAdmin, unblockUser);
 router.get("/wishlist", authMiddleware, getWishlist);
+router.get("/cart", authMiddleware, getUserCart);
+router.post("/cart", authMiddleware, userCart);
+router.post("/cart/applycoupon", authMiddleware, applyCoupon);
+router.post("/cart/cash-order", authMiddleware, createOrder);
+router.delete("/empty-cart", authMiddleware, emptyCart);
+router.get("/get-orders", authMiddleware, getOrders);
+router.put(
+    "/order/update-order/:id",
+    authMiddleware,
+    isAdmin,
+    updateOrderStatus
+);
 router.get("/:id", authMiddleware, isAdmin, getUser);
 router.delete("/:id", deleteUser);
 

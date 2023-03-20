@@ -71,7 +71,6 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
         if (req.query.fields) {
             const fields = req.query.fields.split(",").join(" ");
             query = query.select(fields); // title price
-            console.log("fields:", fields);
         } else {
             query = query.select("-__v"); // mặc định loại bỏ field __v ở trong database
         }
@@ -84,7 +83,6 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
         const skip = (page - 1) * limit; // hiển thị bắt đầu từ index cần query, mặc đinh là từ 0 (lấy all)
         // vd page=1&limit=5 lấy từ index=0, page=1&limit=5 lấy từ index=5
         query = query.skip(skip).limit(limit); //
-        console.log(page, limit, skip);
 
         if (req.query.page) {
             const productCount = await Product.countDocuments();
@@ -94,7 +92,6 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
         }
 
         const products = await query;
-        // console.log("products:", products);
         res.json(products);
     } catch (error) {
         throw new Error(error);
@@ -135,7 +132,6 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
         }
 
         const deleteProduct = await Product.findOneAndDelete({ _id: id });
-        console.log("deleteProduct:", deleteProduct);
         res.json(deleteProduct);
     } catch (error) {
         throw new Error(error);
