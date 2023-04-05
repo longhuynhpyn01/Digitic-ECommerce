@@ -4,7 +4,10 @@ const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const fs = require("fs");
 const validateMongoDbId = require("../utils/validateMongodbId");
-const cloudinaryUploadImg = require("../utils/cloudinary");
+const {
+    cloudinaryUploadImg,
+    cloudinaryDeleteImg
+} = require("../utils/cloudinary");
 
 // Create a product
 exports.createProduct = asyncHandler(async (req, res) => {
@@ -250,23 +253,49 @@ exports.uploadImages = asyncHandler(async (req, res) => {
         const uploader = (path) => cloudinaryUploadImg(path, "images");
         const urls = [];
         const files = req.files;
-        for (const file of files) {
-            const { path } = file;
-            const newPath = await uploader(path); // get được url image đã upload lên cloudinary
-            urls.push(newPath);
-            fs.unlinkSync(path);
-        }
 
-        const findProduct = await Product.findByIdAndUpdate(
-            id,
-            {
-                images: urls.map((file) => file)
-            },
-            {
-                new: true
+        if (files) {
+            for (const file of files) {
+                const { path } = file;
+                const newPath = await uploader(path); // get được url image đã upload lên cloudinary
+                urls.push(newPath);
+                fs.unlinkSync(path);
             }
-        );
-        res.json(findProduct);
+
+            const findProduct = await Product.findById(id);
+            const updateProduct = await Product.findByIdAndUpdate(
+                id,
+                {
+                    images: urls.map((file) => file)
+                },
+                {
+                    new: true
+                }
+            );
+
+            // delete image
+            if (findProduct?.images?.length > 0) {
+                for (const image of findProduct.images) {
+                    cloudinaryDeleteImg(image.public_id, "images");
+                }
+            }
+
+            res.json(updateProduct);
+        } else {
+            throw new Error("No images found");
+        }
+    } catch (error) {
+        throw new Error(error);
+    }
+});
+
+// Delete Images
+exports.deleteImages = asyncHandler(async (req, res) => {
+    const { id } = req.params; // truyền public_id
+
+    try {
+        cloudinaryDeleteImg(id, "images");
+        res.json({ message: "Delete Images" });
     } catch (error) {
         throw new Error(error);
     }

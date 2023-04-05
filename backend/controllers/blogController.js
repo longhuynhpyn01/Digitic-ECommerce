@@ -2,7 +2,10 @@ const Blog = require("../models/blogModel");
 const asyncHandler = require("express-async-handler");
 const fs = require("fs");
 const validateMongoDbId = require("../utils/validateMongodbId");
-const cloudinaryUploadImg = require("../utils/cloudinary");
+const {
+    cloudinaryUploadImg,
+    cloudinaryDeleteImg
+} = require("../utils/cloudinary");
 
 // Create blog
 exports.createBlog = asyncHandler(async (req, res) => {
@@ -190,7 +193,8 @@ exports.uploadImages = asyncHandler(async (req, res) => {
             fs.unlinkSync(path);
         }
 
-        const findBlog = await Blog.findByIdAndUpdate(
+        const findBlog = await Blog.findById(id);
+        const updateBlog = await Blog.findByIdAndUpdate(
             id,
             {
                 images: urls.map((file) => file)
@@ -199,7 +203,15 @@ exports.uploadImages = asyncHandler(async (req, res) => {
                 new: true
             }
         );
-        res.json(findBlog);
+
+        // delete image
+        if (findBlog?.images?.length > 0) {
+            for (const image of findBlog.images) {
+                cloudinaryDeleteImg(image.public_id, "images");
+            }
+        }
+
+        res.json(updateBlog);
     } catch (error) {
         throw new Error(error);
     }

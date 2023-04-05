@@ -27,7 +27,7 @@ exports.updateBrand = asyncHandler(async (req, res) => {
     }
 });
 
-// Get a Brand
+// Get A Brand
 exports.getBrand = asyncHandler(async (req, res) => {
     const { id } = req.params;
     validateMongoDbId(id);
@@ -41,7 +41,7 @@ exports.getBrand = asyncHandler(async (req, res) => {
     }
 });
 
-// Get all brandes
+// Get All Brands
 exports.getAllBrands = asyncHandler(async (req, res) => {
     try {
         const brands = await Brand.find();
@@ -51,7 +51,7 @@ exports.getAllBrands = asyncHandler(async (req, res) => {
     }
 });
 
-// Delete a Brand
+// Delete A Brand
 exports.deleteBrand = asyncHandler(async (req, res) => {
     const { id } = req.params;
     validateMongoDbId(id);
