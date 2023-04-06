@@ -8,6 +8,7 @@ const {
     cloudinaryUploadImg,
     cloudinaryDeleteImg
 } = require("../utils/cloudinary");
+const { API_CODE_BY_SERVER, API_CODE_SUCCESS } = require("../constants");
 
 // Create a product
 exports.createProduct = asyncHandler(async (req, res) => {
@@ -17,9 +18,17 @@ exports.createProduct = asyncHandler(async (req, res) => {
 
     try {
         const newProduct = await Product.create(req.body);
-        res.json(newProduct);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newProduct
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -30,10 +39,17 @@ exports.getProduct = asyncHandler(async (req, res) => {
 
     try {
         const findProduct = await Product.findById(id);
-
-        res.json(findProduct);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: findProduct
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -95,9 +111,17 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
         }
 
         const products = await query;
-        res.json(products);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: products
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -118,9 +142,17 @@ exports.updateProduct = asyncHandler(async (req, res) => {
                 new: true
             }
         );
-        res.json(updateProduct);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateProduct
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -135,9 +167,17 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
         }
 
         const deleteProduct = await Product.findOneAndDelete({ _id: id });
-        res.json(deleteProduct);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: deleteProduct
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -145,6 +185,8 @@ exports.deleteProduct = asyncHandler(async (req, res) => {
 exports.addToWishList = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { productId } = req.body;
+    validateMongoDbId(_id);
+    validateMongoDbId(productId);
 
     try {
         const user = await User.findById(_id);
@@ -162,7 +204,11 @@ exports.addToWishList = asyncHandler(async (req, res) => {
                     new: true
                 }
             );
-            res.json(user);
+            res.json({
+                code: API_CODE_SUCCESS,
+                message: "Success",
+                data: user
+            });
         } else {
             let user = await User.findByIdAndUpdate(
                 _id,
@@ -173,10 +219,18 @@ exports.addToWishList = asyncHandler(async (req, res) => {
                     new: true
                 }
             );
-            res.json(user);
+            res.json({
+                code: API_CODE_SUCCESS,
+                message: "Success",
+                data: user
+            });
         }
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -184,6 +238,8 @@ exports.addToWishList = asyncHandler(async (req, res) => {
 exports.rating = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     const { productId, star, comment } = req.body;
+    validateMongoDbId(_id);
+    validateMongoDbId(productId);
 
     try {
         const product = await Product.findById(productId);
@@ -239,9 +295,17 @@ exports.rating = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        res.json(finalProduct);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: finalProduct
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -249,6 +313,7 @@ exports.rating = asyncHandler(async (req, res) => {
 exports.uploadImages = asyncHandler(async (req, res) => {
     const { id } = req.params;
     validateMongoDbId(id);
+
     try {
         const uploader = (path) => cloudinaryUploadImg(path, "images");
         const urls = [];
@@ -280,12 +345,20 @@ exports.uploadImages = asyncHandler(async (req, res) => {
                 }
             }
 
-            res.json(updateProduct);
+            res.json({
+                code: API_CODE_SUCCESS,
+                message: "Success",
+                data: updateProduct
+            });
         } else {
             throw new Error("No images found");
         }
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -295,8 +368,16 @@ exports.deleteImages = asyncHandler(async (req, res) => {
 
     try {
         cloudinaryDeleteImg(id, "images");
-        res.json({ message: "Delete Images" });
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Delete Image",
+            data: null
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
