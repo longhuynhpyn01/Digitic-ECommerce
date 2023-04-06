@@ -11,6 +11,12 @@ const validateMongoDbId = require("../utils/validateMongodbId");
 const { generateToken } = require("../config/jwtToken");
 const { generateRefreshToken } = require("../config/refreshToken");
 const { sendEmail } = require("./emailController");
+const {
+    API_CODE_NOTFOUND,
+    API_CODE_SUCCESS,
+    API_CODE_UNAUTHORIZED,
+    API_CODE_BY_SERVER
+} = require("../constants");
 
 // Register a user
 exports.createUser = asyncHandler(async (req, res) => {
@@ -21,7 +27,11 @@ exports.createUser = asyncHandler(async (req, res) => {
     if (!findUser) {
         // Create a new user
         const newUser = await User.create(req.body);
-        res.json(newUser);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: null
+        });
     } else {
         // User already exists
         throw new Error("User already exists");
@@ -52,16 +62,25 @@ exports.loginUser = asyncHandler(async (req, res) => {
             maxAge: process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
         });
 
-        res.json({
-            _id: findUser?._id,
-            firstName: findUser?.firstName,
-            lastName: findUser?.lastName,
-            email: findUser?.email,
-            mobile: findUser?.mobile,
-            token: generateToken(findUser?._id)
+        return res.status(200).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: {
+                _id: findUser?._id,
+                firstName: findUser?.firstName,
+                lastName: findUser?.lastName,
+                email: findUser?.email,
+                mobile: findUser?.mobile,
+                token: generateToken(findUser?._id)
+            }
         });
     } else {
-        throw new Error("Invalid Credentials");
+        // throw new Error("Invalid Credentials");
+        res.status(404).json({
+            code: API_CODE_NOTFOUND,
+            message: "Invalid email or password",
+            data: null
+        });
     }
 });
 
@@ -73,7 +92,12 @@ exports.loginAdmin = asyncHandler(async (req, res) => {
     const findAdmin = await User.findOne({ email });
 
     if (findAdmin.role !== "admin") {
-        throw new Error("Not Authorised");
+        // throw new Error("Not Authorised");
+        res.status(401).json({
+            code: API_CODE_UNAUTHORIZED,
+            message: "Not authorized",
+            data: null
+        });
     }
 
     if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
@@ -87,22 +111,32 @@ exports.loginAdmin = asyncHandler(async (req, res) => {
                 new: true
             }
         );
+        console.log("findAdmin:", findAdmin);
+        console.log("updateUser:", updateUser);
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             maxAge: process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
         });
 
-        res.json({
-            _id: findAdmin?._id,
-            firstName: findAdmin?.firstName,
-            lastName: findAdmin?.lastName,
-            email: findAdmin?.email,
-            mobile: findAdmin?.mobile,
-            token: generateToken(findAdmin?._id)
+        return res.status(200).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: {
+                _id: findUser?._id,
+                firstName: findUser?.firstName,
+                lastName: findUser?.lastName,
+                email: findUser?.email,
+                mobile: findUser?.mobile,
+                token: generateToken(findUser?._id)
+            }
         });
     } else {
-        throw new Error("Invalid Credentials");
+        res.status(404).json({
+            code: API_CODE_NOTFOUND,
+            message: "Invalid email or password",
+            data: null
+        });
     }
 });
 
@@ -127,8 +161,10 @@ exports.handleRefreshToken = asyncHandler(async (req, res) => {
         }
 
         const accessToken = generateToken(user?._id);
-        res.json({
-            accessToken
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: { accessToken }
         });
     });
 });
@@ -149,7 +185,12 @@ exports.logoutUser = asyncHandler(async (req, res) => {
             httpOnly: true,
             secure: true
         });
-        return res.sendStatus(204); // forbidden
+        // return res.sendStatus(204); // forbidden
+        return res.json({
+            code: 0,
+            message: "Success",
+            data: null
+        });
     }
 
     await User.findOneAndUpdate(
@@ -163,15 +204,20 @@ exports.logoutUser = asyncHandler(async (req, res) => {
         httpOnly: true,
         secure: true
     });
-    res.sendStatus(204); // forbidden
+    // res.sendStatus(204); // forbidden
+    return res.json({
+        code: 0,
+        message: "Success",
+        data: null
+    });
 });
 
 // Update a user
 exports.updateUser = asyncHandler(async (req, res) => {
-    try {
-        const { _id } = req.user;
-        validateMongoDbId(_id);
+    const { _id } = req.user;
+    validateMongoDbId(_id);
 
+    try {
         const updateUser = await User.findByIdAndUpdate(
             _id,
             {
@@ -185,18 +231,26 @@ exports.updateUser = asyncHandler(async (req, res) => {
             }
         );
 
-        res.json(updateUser);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Update account successfully",
+            data: updateUser
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
 // Save user address
 exports.saveAddress = asyncHandler(async (req, res) => {
-    try {
-        const { _id } = req.user;
-        validateMongoDbId(_id);
+    const { _id } = req.user;
+    validateMongoDbId(_id);
 
+    try {
         const updateUser = await User.findByIdAndUpdate(
             _id,
             {
@@ -207,9 +261,17 @@ exports.saveAddress = asyncHandler(async (req, res) => {
             }
         );
 
-        res.json(updateUser);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Update address successfully",
+            data: updateUser
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -218,50 +280,70 @@ exports.getAllUsers = asyncHandler(async (req, res) => {
     try {
         const users = await User.find();
 
-        res.json(users);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: users
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
 // Get a single user
 exports.getUser = asyncHandler(async (req, res) => {
-    try {
-        const { id } = req.params;
-        validateMongoDbId(id);
+    const { id } = req.params;
+    validateMongoDbId(id);
 
+    try {
         const user = await User.findById(id);
 
-        res.json({
-            user
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: user
         });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
 // Delete a user
 exports.deleteUser = asyncHandler(async (req, res) => {
-    try {
-        const { id } = req.params;
-        validateMongoDbId(id);
+    const { id } = req.params;
+    validateMongoDbId(id);
 
+    try {
         const deleteUser = await User.findByIdAndDelete(id);
 
         res.json({
-            deleteUser
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: null
         });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
 // Block user
 exports.blockUser = asyncHandler(async (req, res) => {
-    try {
-        const { id } = req.params;
-        validateMongoDbId(id);
+    const { id } = req.params;
+    validateMongoDbId(id);
 
+    try {
         await User.findByIdAndUpdate(
             id,
             {
@@ -273,19 +355,25 @@ exports.blockUser = asyncHandler(async (req, res) => {
         );
 
         res.json({
-            message: "User Blocked"
+            code: API_CODE_SUCCESS,
+            message: "User Blocked",
+            data: null
         });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
 // Unblock user
 exports.unblockUser = asyncHandler(async (req, res) => {
-    try {
-        const { id } = req.params;
-        validateMongoDbId(id);
+    const { id } = req.params;
+    validateMongoDbId(id);
 
+    try {
         await User.findByIdAndUpdate(
             id,
             {
@@ -297,10 +385,16 @@ exports.unblockUser = asyncHandler(async (req, res) => {
         );
 
         res.json({
-            message: "User Unblocked"
+            code: API_CODE_SUCCESS,
+            message: "User Unblocked",
+            data: null
         });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -310,14 +404,31 @@ exports.updatePassword = asyncHandler(async (req, res) => {
     const { password } = req.body;
     validateMongoDbId(_id);
 
-    const user = await User.findById(_id);
+    try {
+        const user = await User.findById(_id);
 
-    if (password) {
-        user.password = password;
-        const updatePassword = await user.save();
-        res.json(updatePassword);
-    } else {
-        res.json(user);
+        if (password) {
+            user.password = password;
+            const updatePassword = await user.save();
+
+            return res.json({
+                code: API_CODE_SUCCESS,
+                message: "Password has been updated",
+                data: updatePassword
+            });
+        } else {
+            return res.json({
+                code: API_CODE_SUCCESS,
+                message: "Success",
+                data: user
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -342,36 +453,59 @@ exports.forgotPasswordToken = asyncHandler(async (req, res) => {
             html: resetURL
         };
         sendEmail(data);
-        res.json(token);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: { token }
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
 // Reset password
 exports.resetPassword = asyncHandler(async (req, res) => {
-    const { password } = req.body;
-    const { token } = req.params;
+    try {
+        const { password } = req.body;
+        const { token } = req.params;
 
-    // creating token hash - hash cryto để so sánh resetPasswordToken
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+        // creating token hash - hash cryto để so sánh resetPasswordToken
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
 
-    const user = await User.findOne({
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() }
-    });
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpires: { $gt: Date.now() }
+        });
 
-    if (!user) {
-        throw new Error("Token Expired. Please try again later");
+        if (!user) {
+            throw new Error("Token Expired. Please try again later");
+        }
+
+        // sau khi cập nhật password thì xóa đi resetPasswordToken
+        user.password = password;
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+
+        await user.save();
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: user
+        });
+    } catch (error) {
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
-
-    // sau khi cập nhật password thì xóa đi resetPasswordToken
-    user.password = password;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-
-    await user.save();
-    res.json(user);
 });
 
 // Get Wishlist: danh sách với nhiều vật dụng mà chúng ta muốn
@@ -381,9 +515,17 @@ exports.getWishlist = asyncHandler(async (req, res) => {
 
     try {
         const findUser = await User.findById(_id).populate("wishlist");
-        res.json(findUser);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: findUser
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 // Post User Cart
@@ -427,9 +569,17 @@ exports.userCart = asyncHandler(async (req, res) => {
             cartTotal,
             orderBy: user?._id
         }).save();
-        res.json(newCart);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newCart
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -442,9 +592,17 @@ exports.getUserCart = asyncHandler(async (req, res) => {
         const cart = await Cart.findOne({ orderBy: _id }).populate(
             "products.product"
         );
-        res.json(cart);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: cart
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -456,9 +614,17 @@ exports.emptyCart = asyncHandler(async (req, res) => {
     try {
         const user = await User.findById(_id);
         const cart = await Cart.findOneAndRemove({ orderBy: user._id });
-        res.json(cart);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: cart
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -468,29 +634,41 @@ exports.applyCoupon = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     validateMongoDbId(_id);
 
-    const validCoupon = await Coupon.findOne({ name: coupon });
-    if (validCoupon === null) {
-        throw new Error("Invalid Coupon");
-    }
+    try {
+        const validCoupon = await Coupon.findOne({ name: coupon });
+        if (validCoupon === null) {
+            throw new Error("Invalid Coupon");
+        }
 
-    const user = await User.findOne({ _id });
-    let { cartTotal } = await Cart.findOne({
-        orderBy: user?._id
-    }).populate("products.product");
-    let totalAfterDiscount = (
-        cartTotal -
-        (cartTotal * validCoupon.discount) / 100
-    ).toFixed(2);
-    await Cart.findOneAndUpdate(
-        {
+        const user = await User.findOne({ _id });
+        let { cartTotal } = await Cart.findOne({
             orderBy: user?._id
-        },
-        {
-            totalAfterDiscount
-        },
-        { new: true }
-    );
-    res.json(totalAfterDiscount);
+        }).populate("products.product");
+        let totalAfterDiscount = (
+            cartTotal -
+            (cartTotal * validCoupon.discount) / 100
+        ).toFixed(2);
+        await Cart.findOneAndUpdate(
+            {
+                orderBy: user?._id
+            },
+            {
+                totalAfterDiscount
+            },
+            { new: true }
+        );
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: totalAfterDiscount
+        });
+    } catch (error) {
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
+    }
 });
 
 // Create Order
@@ -544,11 +722,17 @@ exports.createOrder = asyncHandler(async (req, res) => {
             };
         });
         const updated = await Product.bulkWrite(update, {});
-        res.json({
-            message: "success"
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: null
         });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -561,9 +745,17 @@ exports.getOrders = asyncHandler(async (req, res) => {
         const userOrders = await Order.find({ orderBy: _id }).populate(
             "products.product"
         );
-        res.json(userOrders);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: userOrders
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -584,8 +776,16 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        res.json(updateOrderStatus);
+        return res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateOrderStatus
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
