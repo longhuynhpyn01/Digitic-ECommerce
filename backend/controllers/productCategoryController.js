@@ -1,14 +1,23 @@
 const Category = require("../models/productCategoryModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
+const { API_CODE_SUCCESS, API_CODE_BY_SERVER } = require("../constants");
 
 // Create Category
 exports.createCategory = asyncHandler(async (req, res) => {
     try {
         const newCategory = await Category.create(req.body);
-        res.json(newCategory);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newCategory
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -21,9 +30,17 @@ exports.updateCategory = asyncHandler(async (req, res) => {
         const updateCategory = await Category.findByIdAndUpdate(id, req.body, {
             new: true
         });
-        res.json(updateCategory);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateCategory
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -34,10 +51,17 @@ exports.getCategory = asyncHandler(async (req, res) => {
 
     try {
         const category = await Category.findById(id);
-
-        res.json(category);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: category
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -45,9 +69,17 @@ exports.getCategory = asyncHandler(async (req, res) => {
 exports.getAllCategories = asyncHandler(async (req, res) => {
     try {
         const categories = await Category.find();
-        res.json(categories);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: categories
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -58,8 +90,16 @@ exports.deleteCategory = asyncHandler(async (req, res) => {
 
     try {
         const deleteCategory = await Category.findByIdAndDelete(id);
-        res.json(deleteCategory);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: deleteCategory
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });

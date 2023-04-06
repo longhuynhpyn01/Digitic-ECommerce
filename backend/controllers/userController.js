@@ -12,8 +12,8 @@ const { generateToken } = require("../config/jwtToken");
 const { generateRefreshToken } = require("../config/refreshToken");
 const { sendEmail } = require("./emailController");
 const {
-    API_CODE_NOTFOUND,
     API_CODE_SUCCESS,
+    API_CODE_NOTFOUND,
     API_CODE_UNAUTHORIZED,
     API_CODE_BY_SERVER
 } = require("../constants");

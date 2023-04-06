@@ -1,14 +1,23 @@
 const Coupon = require("../models/couponModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
+const { API_CODE_SUCCESS, API_CODE_BY_SERVER } = require("../constants");
 
 // Create a coupon
 exports.createCoupon = asyncHandler(async (req, res) => {
     try {
         const newCoupon = await Coupon.create(req.body);
-        res.json(newCoupon);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newCoupon
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -21,9 +30,17 @@ exports.updateCoupon = asyncHandler(async (req, res) => {
         const updateCoupon = await Coupon.findByIdAndUpdate(id, req.body, {
             new: true
         });
-        res.json(updateCoupon);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateCoupon
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -34,10 +51,17 @@ exports.getCoupon = asyncHandler(async (req, res) => {
 
     try {
         const findCoupon = await Coupon.findById(id);
-
-        res.json(findCoupon);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: findCoupon
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -45,9 +69,17 @@ exports.getCoupon = asyncHandler(async (req, res) => {
 exports.getAllCoupons = asyncHandler(async (req, res) => {
     try {
         const coupons = await Coupon.find();
-        res.json(coupons);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: coupons
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -58,8 +90,16 @@ exports.deleteCoupon = asyncHandler(async (req, res) => {
 
     try {
         const deleteCoupon = await Coupon.findByIdAndDelete(id);
-        res.json(deleteCoupon);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: deleteCoupon
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });

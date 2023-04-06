@@ -8,7 +8,7 @@ const {
     cloudinaryUploadImg,
     cloudinaryDeleteImg
 } = require("../utils/cloudinary");
-const { API_CODE_BY_SERVER, API_CODE_SUCCESS } = require("../constants");
+const { API_CODE_SUCCESS, API_CODE_BY_SERVER } = require("../constants");
 
 // Create a product
 exports.createProduct = asyncHandler(async (req, res) => {

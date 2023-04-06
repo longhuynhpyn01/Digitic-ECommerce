@@ -1,14 +1,23 @@
 const Enquiry = require("../models/enqModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
+const { API_CODE_SUCCESS, API_CODE_BY_SERVER } = require("../constants");
 
 // Create Enquiry
 exports.createEnquiry = asyncHandler(async (req, res) => {
     try {
         const newEnquiry = await Enquiry.create(req.body);
-        res.json(newEnquiry);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newEnquiry
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -21,9 +30,17 @@ exports.updateEnquiry = asyncHandler(async (req, res) => {
         const updateEnquiry = await Enquiry.findByIdAndUpdate(id, req.body, {
             new: true
         });
-        res.json(updateEnquiry);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateEnquiry
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -33,11 +50,18 @@ exports.getEnquiry = asyncHandler(async (req, res) => {
     validateMongoDbId(id);
 
     try {
-        const category = await Enquiry.findById(id);
-
-        res.json(category);
+        const enquiry = await Enquiry.findById(id);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: enquiry
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -45,9 +69,17 @@ exports.getEnquiry = asyncHandler(async (req, res) => {
 exports.getAllEnquiries = asyncHandler(async (req, res) => {
     try {
         const enquiries = await Enquiry.find();
-        res.json(enquiries);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: enquiries
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -58,8 +90,16 @@ exports.deleteEnquiry = asyncHandler(async (req, res) => {
 
     try {
         const deleteEnquiry = await Enquiry.findByIdAndDelete(id);
-        res.json(deleteEnquiry);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: deleteEnquiry
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });

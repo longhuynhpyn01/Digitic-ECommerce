@@ -1,14 +1,23 @@
 const Color = require("../models/colorModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
+const { API_CODE_SUCCESS, API_CODE_BY_SERVER } = require("../constants");
 
 // Create Color
 exports.createColor = asyncHandler(async (req, res) => {
     try {
         const newColor = await Color.create(req.body);
-        res.json(newColor);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newColor
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -21,9 +30,17 @@ exports.updateColor = asyncHandler(async (req, res) => {
         const updateColor = await Color.findByIdAndUpdate(id, req.body, {
             new: true
         });
-        res.json(updateColor);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateColor
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -33,11 +50,18 @@ exports.getColor = asyncHandler(async (req, res) => {
     validateMongoDbId(id);
 
     try {
-        const category = await Color.findById(id);
-
-        res.json(category);
+        const color = await Color.findById(id);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: color
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -45,9 +69,17 @@ exports.getColor = asyncHandler(async (req, res) => {
 exports.getAllColors = asyncHandler(async (req, res) => {
     try {
         const colors = await Color.find();
-        res.json(colors);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: colors
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -58,8 +90,16 @@ exports.deleteColor = asyncHandler(async (req, res) => {
 
     try {
         const deleteColor = await Color.findByIdAndDelete(id);
-        res.json(deleteColor);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: deleteColor
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });

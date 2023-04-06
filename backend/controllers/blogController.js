@@ -6,14 +6,23 @@ const {
     cloudinaryUploadImg,
     cloudinaryDeleteImg
 } = require("../utils/cloudinary");
+const { API_CODE_SUCCESS, API_CODE_BY_SERVER } = require("../constants");
 
 // Create blog
 exports.createBlog = asyncHandler(async (req, res) => {
     try {
         const newBlog = await Blog.create(req.body);
-        res.json(newBlog);
+        res.status(201).json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: newBlog
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -26,9 +35,17 @@ exports.updateBlog = asyncHandler(async (req, res) => {
         const updateBlog = await Blog.findByIdAndUpdate(id, req.body, {
             new: true
         });
-        res.json(updateBlog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateBlog
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -38,9 +55,6 @@ exports.getBlog = asyncHandler(async (req, res) => {
     validateMongoDbId(id);
 
     try {
-        const blog = await Blog.findById(id)
-            .populate("likes")
-            .populate("dislikes");
         // cập nhật lượng numViews lên 1
         const updateViews = await Blog.findByIdAndUpdate(
             id,
@@ -48,10 +62,20 @@ exports.getBlog = asyncHandler(async (req, res) => {
                 $inc: { numViews: 1 }
             },
             { new: true }
-        );
-        res.json(updateViews);
+        )
+            .populate("likes")
+            .populate("dislikes");
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateViews
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -59,9 +83,17 @@ exports.getBlog = asyncHandler(async (req, res) => {
 exports.getAllBlogs = asyncHandler(async (req, res) => {
     try {
         const blogs = await Blog.find();
-        res.json(blogs);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: blogs
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -72,9 +104,17 @@ exports.deleteBlog = asyncHandler(async (req, res) => {
 
     try {
         const deleteBlog = await Blog.findByIdAndDelete(id);
-        res.json(deleteBlog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: deleteBlog
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
 
@@ -114,7 +154,11 @@ exports.likeBlog = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        res.json(blog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: blog
+        });
     } else {
         const blog = await Blog.findByIdAndUpdate(
             blogId,
@@ -124,7 +168,11 @@ exports.likeBlog = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        res.json(blog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: blog
+        });
     }
 });
 
@@ -164,7 +212,11 @@ exports.dislikeBlog = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        res.json(blog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: blog
+        });
     } else {
         const blog = await Blog.findByIdAndUpdate(
             blogId,
@@ -174,7 +226,11 @@ exports.dislikeBlog = asyncHandler(async (req, res) => {
             },
             { new: true }
         );
-        res.json(blog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: blog
+        });
     }
 });
 
@@ -182,6 +238,7 @@ exports.dislikeBlog = asyncHandler(async (req, res) => {
 exports.uploadImages = asyncHandler(async (req, res) => {
     const { id } = req.params;
     validateMongoDbId(id);
+
     try {
         const uploader = (path) => cloudinaryUploadImg(path, "images");
         const urls = [];
@@ -211,8 +268,16 @@ exports.uploadImages = asyncHandler(async (req, res) => {
             }
         }
 
-        res.json(updateBlog);
+        res.json({
+            code: API_CODE_SUCCESS,
+            message: "Success",
+            data: updateBlog
+        });
     } catch (error) {
-        throw new Error(error);
+        return res.status(500).json({
+            code: API_CODE_BY_SERVER,
+            message: error.message,
+            data: null
+        });
     }
 });
