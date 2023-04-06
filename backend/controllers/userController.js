@@ -91,9 +91,16 @@ exports.loginAdmin = asyncHandler(async (req, res) => {
     // check if user exists or not
     const findAdmin = await User.findOne({ email });
 
+    if (!findAdmin) {
+        return res.status(404).json({
+            code: API_CODE_NOTFOUND,
+            message: "Invalid email or password",
+            data: null
+        });
+    }
+
     if (findAdmin.role !== "admin") {
-        // throw new Error("Not Authorised");
-        res.status(401).json({
+        return res.status(401).json({
             code: API_CODE_UNAUTHORIZED,
             message: "Not authorized",
             data: null
