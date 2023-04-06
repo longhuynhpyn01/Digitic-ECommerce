@@ -9,7 +9,6 @@ cloudinary.config({
 const cloudinaryUploadImg = async (fileToUploads) => {
     return new Promise((resolve) => {
         cloudinary.uploader.upload(fileToUploads, (result) => {
-            console.log("result upload:", result);
             resolve(
                 {
                     url: result.secure_url,
@@ -27,7 +26,6 @@ const cloudinaryUploadImg = async (fileToUploads) => {
 const cloudinaryDeleteImg = async (fileToDelete) => {
     return new Promise((resolve) => {
         cloudinary.uploader.destroy(fileToDelete, (result) => {
-            console.log("result delete:", result);
             resolve(
                 {
                     url: result.secure_url,

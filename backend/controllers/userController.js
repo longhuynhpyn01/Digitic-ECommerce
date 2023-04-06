@@ -111,8 +111,6 @@ exports.loginAdmin = asyncHandler(async (req, res) => {
                 new: true
             }
         );
-        console.log("findAdmin:", findAdmin);
-        console.log("updateUser:", updateUser);
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
